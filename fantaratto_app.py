@@ -129,29 +129,53 @@ elif menu == "Votazioni":
                 st.write(p["motivazione"])
 
                 col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("👍 Approva", key=f"yes_{p['id']}_{votante}"):
-                        voto = {
-                            "id": str(uuid.uuid4()),
-                            "proposta_id": p["id"],
-                            "votante": votante,
-                            "voto": True
-                        }
-                        supabase_insert("voti", voto)
-                        st.success("Hai approvato la proposta ✅")
-                        st.rerun()
+                
+                #cambio per problema fatto da pippo 25/11---------------------------------------------------------------------------------------------------------------------------------------------------
+            
+               with col1:
+    if st.button("👍 Approva", key=f"yes_{p['id']}_{votante}"):
+        voto = {
+            "id": str(uuid.uuid4()),
+            "proposta_id": p["id"],
+            "votante": votante,
+            "voto": True
+        }
+        res = supabase_insert("voti", voto)
 
-                with col2:
-                    if st.button("👎 Rifiuta", key=f"no_{p['id']}_{votante}"):
-                        voto = {
-                            "id": str(uuid.uuid4()),
-                            "proposta_id": p["id"],
-                            "votante": votante,
-                            "voto": False
-                        }
-                        supabase_insert("voti", voto)
-                        st.error("Hai rifiutato la proposta ❌")
-                        st.rerun()
+        # Controllo esplicito della risposta di Supabase
+        if res is not None and res.status_code in [200, 201]:
+            st.success("Hai approvato la proposta ✅")
+            st.rerun()
+        else:
+            if res is None:
+                st.error("❌ Errore nel salvataggio del voto: nessuna risposta da Supabase.")
+            else:
+                st.error(f"❌ Errore nel salvataggio del voto ({res.status_code}): {res.text}")
+                
+                #cambio per problema fatto da pippo 25/11---------------------------------------------------------------------------------------------------------
+                #cambio per problema fatto da pippo 25/11---------------------------------------------------------------------------------------------------------
+  with col2:
+    if st.button("👎 Rifiuta", key=f"no_{p['id']}_{votante}"):
+        voto = {
+            "id": str(uuid.uuid4()),
+            "proposta_id": p["id"],
+            "votante": votante,
+            "voto": False
+        }
+        res = supabase_insert("voti", voto)
+
+        # Controllo esplicito della risposta di Supabase
+        if res is not None and res.status_code in [200, 201]:
+            st.error("Hai rifiutato la proposta ❌")
+            st.rerun()
+        else:
+            if res is None:
+                st.error("❌ Errore nel salvataggio del voto: nessuna risposta da Supabase.")
+            else:
+                st.error(f"❌ Errore nel salvataggio del voto ({res.status_code}): {res.text}")
+
+         #cambio per problema fatto da pippo 25/11---------------------------------------------------------------------------------------------------------
+
 
         # === CONTROLLO AUTOMATICO APPROVAZIONE / RIFIUTO ===
         for p in proposte:
